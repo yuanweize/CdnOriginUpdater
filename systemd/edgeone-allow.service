@@ -1,0 +1,31 @@
+[Unit]
+Description=Update Nginx allow list from EdgeOne IPs (CdnOriginUpdater)
+Documentation=https://github.com/yuanweize/CdnOriginUpdater
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Optional: environment overrides
+EnvironmentFile=-/etc/default/edgeone-allow
+
+# Ensure PATH includes nginx and systemctl locations
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# EDIT THIS PATH to where you cloned/installed the repo
+ExecStart=/bin/bash /opt/CdnOriginUpdater/update_edgeone_allow.sh
+
+User=root
+Group=root
+
+# Hardening (adjust if it blocks writing to your OUT path)
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+LockPersonality=true
+RestrictRealtime=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

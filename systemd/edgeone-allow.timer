@@ -1,0 +1,13 @@
+[Unit]
+Description=Schedule EdgeOne allow list updates (CdnOriginUpdater)
+Documentation=https://github.com/yuanweize/CdnOriginUpdater
+
+[Timer]
+# Run 5 minutes after boot, then every hour
+OnBootSec=5min
+OnUnitActiveSec=1h
+AccuracySec=1min
+Unit=edgeone-allow.service
+
+[Install]
+WantedBy=timers.target
