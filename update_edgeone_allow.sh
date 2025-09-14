@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 TMP=/tmp/edgeone_ips.txt
-OUT=//www/server/panel/vhost/nginx/edgeone_allow.conf
+OUT=//www/server/panel/vhost/nginx/0.edgeone_allow.conf
 
 # 下载 EdgeOne IP 列表（输出为每行一个 CIDR）
 curl -fsS https://api.edgeone.ai/ips -o "$TMP" || { echo "fetch failed"; exit 1; }
