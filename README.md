@@ -97,7 +97,7 @@ CURL_OPTS="-fsS --max-time 10" bash update_edgeone_allow.sh
 
 ```nginx
 # http/server/location 任一层级均可按需引用
-include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
+include /www/server/panel/vhost/nginx/cdnip/*.conf;
 ```
 
 生成的内容形如：
@@ -120,7 +120,7 @@ deny all;
 
 ```nginx
 # 1) 只允许 EdgeOne 回源 IP + 本机
-include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
+include /www/server/panel/vhost/nginx/cdnip/*.conf;
 
 # 2) 把 403 映射为重定向（核心：把 deny 引起的 403 改为跳转）
 error_page 403 = @to_error;

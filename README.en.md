@@ -94,7 +94,7 @@ CURL_OPTS="-fsS --max-time 10" bash update_edgeone_allow.sh
 Make sure your site/global config includes the generated file:
 
 ```nginx
-include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
+include /www/server/panel/vhost/nginx/cdnip/*.conf;
 ```
 
 Generated content example:
@@ -117,7 +117,7 @@ If you prefer serving a decoy for non-CDN traffic, map 403 to a redirect, e.g. u
 
 ```nginx
 # 1) Allow only EdgeOne egress IPs + localhost
-include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
+include /www/server/panel/vhost/nginx/cdnip/*.conf;
 
 # 2) Turn 403 into a redirect (instead of default deny)
 error_page 403 = @to_error;
