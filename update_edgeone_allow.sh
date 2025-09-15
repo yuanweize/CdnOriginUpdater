@@ -7,10 +7,10 @@ set -euo pipefail
 
 # -------------------- Config (overridable via env) --------------------
 : "${EDGEONE_IPS_URL:=https://api.edgeone.ai/ips}"
-: "${OUT:=/www/server/panel/vhost/nginx/cdnip/edgeone_allow.conf}"
+: "${OUT:=/www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf}"
 : "${NGINX_TEST_CMD:=nginx -t}"
 : "${RELOAD_CMD:=systemctl reload nginx}"
-: "${CURL_OPTS:=-fsS}"
+: "${CURL_OPTS:=-fsS --retry 3 --retry-delay 1 --retry-all-errors}"
 : "${RELOAD:=1}"         # 1 to reload nginx on changes; 0 to skip
 
 # -------------------- CLI flags --------------------
@@ -30,7 +30,7 @@ Environment overrides:
 	OUT               Output nginx include file path (default: $OUT)
 	NGINX_TEST_CMD    Command to test nginx config (default: "$NGINX_TEST_CMD")
 	RELOAD_CMD        Command to reload nginx (default: "$RELOAD_CMD")
-	CURL_OPTS         Extra curl options (default: "$CURL_OPTS")
+	CURL_OPTS         Extra curl options (default: "$CURL_OPTS"). Auto-fallback to --http1.1 on failure
 	RELOAD            1 to reload (default), 0 to skip reload
 USAGE
 }
@@ -85,8 +85,11 @@ trap cleanup EXIT INT TERM
 
 log "Fetching IP list from $EDGEONE_IPS_URL ..."
 if ! curl $CURL_OPTS "$EDGEONE_IPS_URL" -o "$TMP"; then
-	err "Failed to fetch IP list"
-	exit 1
+	log "Primary fetch failed; retrying with --http1.1 ..."
+	if ! curl $CURL_OPTS --http1.1 "$EDGEONE_IPS_URL" -o "$TMP"; then
+		err "Failed to fetch IP list"
+		exit 1
+	fi
 fi
 
 # Abort if list is empty after filtering (avoid locking everyone out)

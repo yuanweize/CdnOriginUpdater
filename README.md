@@ -52,6 +52,21 @@ bash update_edgeone_allow.sh --dry-run
 bash update_edgeone_allow.sh --quiet
 ```
 
+### 下载与更新脚本（覆盖旧版本）
+
+将脚本下载到 `/usr/local/bin` 并赋予可执行权限（覆盖旧文件）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yuanweize/CdnOriginUpdater/main/update_edgeone_allow.sh -o /usr/local/bin/update_edgeone_allow.sh
+chmod +x /usr/local/bin/update_edgeone_allow.sh
+```
+
+之后可直接执行：
+
+```bash
+update_edgeone_allow.sh
+```
+
 ## 配置项（环境变量）
 
 可在运行前通过环境变量覆盖默认行为：
@@ -82,7 +97,7 @@ CURL_OPTS="-fsS --max-time 10" bash update_edgeone_allow.sh
 
 ```nginx
 # http/server/location 任一层级均可按需引用
-include /www/server/panel/vhost/nginx/edgeone_allow.conf;
+include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
 ```
 
 生成的内容形如：
@@ -98,6 +113,22 @@ deny all;
 ```
 
 > 注意：请勿手动编辑该文件，脚本每次运行会覆盖它。
+
+### [可选] 将 403 重定向到伪装错误页
+
+若希望对非 CDN 回源的请求返回一个迷惑性的错误页，可以将 403 统一映射跳转到你的错误域（例如使用项目 [Error-1402](https://github.com/yuanweize/Error-1402)）：
+
+```nginx
+# 1) 只允许 EdgeOne 回源 IP + 本机
+include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
+
+# 2) 把 403 映射为重定向（核心：把 deny 引起的 403 改为跳转）
+error_page 403 = @to_error;
+location @to_error {
+	# 使用 302 临时跳转到错误域（保留原请求路径）
+	return 302 https://error.eurun.top$request_uri;
+}
+```
 
 ## 定时更新
 

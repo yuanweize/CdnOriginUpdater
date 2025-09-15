@@ -52,6 +52,21 @@ Quiet mode:
 bash update_edgeone_allow.sh --quiet
 ```
 
+### Download and update the script (overwrite old version)
+
+Download to `/usr/local/bin` and make it executable:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yuanweize/CdnOriginUpdater/main/update_edgeone_allow.sh -o /usr/local/bin/update_edgeone_allow.sh
+chmod +x /usr/local/bin/update_edgeone_allow.sh
+```
+
+Then run it directly:
+
+```bash
+update_edgeone_allow.sh
+```
+
 ## Configuration (env vars)
 
 - `EDGEONE_IPS_URL`: EdgeOne IP list (one CIDR per line). Default: `https://api.edgeone.ai/ips`
@@ -79,7 +94,7 @@ CURL_OPTS="-fsS --max-time 10" bash update_edgeone_allow.sh
 Make sure your site/global config includes the generated file:
 
 ```nginx
-include /www/server/panel/vhost/nginx/edgeone_allow.conf;
+include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
 ```
 
 Generated content example:
@@ -95,6 +110,22 @@ deny all;
 ```
 
 > Do not edit the generated file manually; it will be overwritten.
+
+### Optional: redirect 403 to a decoy error page
+
+If you prefer serving a decoy for non-CDN traffic, map 403 to a redirect, e.g. using the [Error-1402](https://github.com/yuanweize/Error-1402) project:
+
+```nginx
+# 1) Allow only EdgeOne egress IPs + localhost
+include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
+
+# 2) Turn 403 into a redirect (instead of default deny)
+error_page 403 = @to_error;
+location @to_error {
+  # Temporary redirect to your error host, preserve path
+  return 302 https://error.eurun.top$request_uri;
+}
+```
 
 ## Systemd setup
 
