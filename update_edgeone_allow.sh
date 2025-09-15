@@ -10,7 +10,7 @@ set -euo pipefail
 : "${OUT:=/www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf}"
 : "${NGINX_TEST_CMD:=nginx -t}"
 : "${RELOAD_CMD:=systemctl reload nginx}"
-: "${CURL_OPTS:=-fsS --retry 3 --retry-delay 1 --retry-all-errors}"
+: "${CURL_OPTS:=-fsS --retry 3 --retry-delay 1}"
 : "${RELOAD:=1}"         # 1 to reload nginx on changes; 0 to skip
 
 # -------------------- CLI flags --------------------
@@ -84,11 +84,19 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 log "Fetching IP list from $EDGEONE_IPS_URL ..."
+
+# Try a series of curl invocations for compatibility (old curl/HTTP2 issues)
 if ! curl $CURL_OPTS "$EDGEONE_IPS_URL" -o "$TMP"; then
 	log "Primary fetch failed; retrying with --http1.1 ..."
 	if ! curl $CURL_OPTS --http1.1 "$EDGEONE_IPS_URL" -o "$TMP"; then
-		err "Failed to fetch IP list"
-		exit 1
+		log "Fallback to minimal curl options ..."
+		if ! curl -fsS "$EDGEONE_IPS_URL" -o "$TMP"; then
+			log "Retry minimal options with --http1.1 ..."
+			if ! curl -fsS --http1.1 "$EDGEONE_IPS_URL" -o "$TMP"; then
+				err "Failed to fetch IP list"
+				exit 1
+			fi
+		fi
 	fi
 fi
 
