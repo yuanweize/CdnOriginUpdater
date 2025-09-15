@@ -7,7 +7,7 @@ set -euo pipefail
 
 # -------------------- Config (overridable via env) --------------------
 : "${EDGEONE_IPS_URL:=https://api.edgeone.ai/ips}"
-: "${OUT:=/www/server/panel/vhost/nginx/edgeone_allow.conf}"
+: "${OUT:=/www/server/panel/vhost/nginx/cdnip/edgeone_allow.conf}"
 : "${NGINX_TEST_CMD:=nginx -t}"
 : "${RELOAD_CMD:=systemctl reload nginx}"
 : "${CURL_OPTS:=-fsS}"
