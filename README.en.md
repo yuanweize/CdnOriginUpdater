@@ -123,7 +123,7 @@ include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
 error_page 403 = @to_error;
 location @to_error {
   # Temporary redirect to your error host, preserve path
-  return 302 https://error.eurun.top$request_uri;
+  return 302 https://error-1402.vercel.app$request_uri;
 }
 ```
 

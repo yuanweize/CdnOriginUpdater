@@ -126,7 +126,7 @@ include /www/server/panel/vhost/nginx/cdnip/0.edgeone_allow.conf;
 error_page 403 = @to_error;
 location @to_error {
 	# 使用 302 临时跳转到错误域（保留原请求路径）
-	return 302 https://error.eurun.top$request_uri;
+	return 302 https://error-1402.vercel.app$request_uri;
 }
 ```
 
